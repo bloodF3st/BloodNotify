@@ -1,0 +1,7 @@
+[Unit]
+Description=BloodVDS internet watchdog
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/bloodvds-watchdog.sh
