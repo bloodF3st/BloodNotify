@@ -20,7 +20,6 @@
 | RAM > 85% | blood-monitor (VDS daemon) | high |
 | Диск > 85% | blood-monitor (VDS daemon) | high |
 | Сервис упал и не рестартует | blood-monitor (VDS daemon) | urgent |
-| VDS недоступен (ping) | watchdog (локальная машина) | urgent |
 
 **Что не алертит** (ожидаемые API ошибки):
 FloodWait, RetryAfter, нет доступа к чату, CHANNEL_PRIVATE, CHAT_WRITE_FORBIDDEN,
@@ -36,9 +35,6 @@ VDS (blood-monitor.service)
 ├── journald → grep ERROR/CRIT/panic → ntfy push
 ├── CPU / RAM / Disk polling → ntfy push
 └── Сервисы: blood-harvest, bloodlogs-bot, blood-festival-bot, vkfest
-
-Локальная машина (bloodvds-watchdog.timer)
-└── ping VDS каждые 5 мин → если нет ответа → ntfy push
 
 Боты (встроенная интеграция, NTFY_URL в .env)
 ├── BloodHarvest — таймеры неактивности + renew watchdog events
@@ -76,7 +72,6 @@ bash install.sh
 Скрипт запросит:
 - URL топика ntfy
 - SSH алиас/хост VDS
-- IP VDS для ping watchdog
 
 После установки придёт тестовый push `✅ BloodNotify установлен`.
 
@@ -111,20 +106,6 @@ echo 'NTFY_URL=https://ntfy.sh/твой-топик' >> /opt/bloodlogs/.env
 ```
 
 Перезапустить соответствующие сервисы.
-
-### Локальная машина: ping watchdog
-
-```bash
-sudo cp watchdog.sh /usr/local/bin/bloodvds-watchdog.sh
-sudo chmod +x /usr/local/bin/bloodvds-watchdog.sh
-# Отредактировать VDS_HOST и NTFY_URL в скрипте
-sudo nano /usr/local/bin/bloodvds-watchdog.sh
-
-sudo cp systemd/bloodvds-watchdog.service /etc/systemd/system/
-sudo cp systemd/bloodvds-watchdog.timer /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now bloodvds-watchdog.timer
-```
 
 ---
 
@@ -163,11 +144,8 @@ sudo systemctl enable --now bloodvds-watchdog.timer
 ```
 BloodNotify/
 ├── blood-monitor.sh          # Демон мониторинга (запускается на VDS)
-├── watchdog.sh               # Ping watchdog (запускается на локальной машине)
 ├── install.sh                # Автоматический установщик
 ├── systemd/
-│   ├── blood-monitor.service # systemd unit для VDS
-│   ├── bloodvds-watchdog.service
-│   └── bloodvds-watchdog.timer
+│   └── blood-monitor.service # systemd unit для VDS
 └── README.md
 ```
