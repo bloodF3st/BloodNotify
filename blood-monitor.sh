@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-NTFY_URL="https://ntfy.sh/BloodVDS"
+NTFY_URL="https://ntfy.sh/YOUR_TOPIC"
 CPU_THRESHOLD=80
 MEM_THRESHOLD=85
 DISK_THRESHOLD=85

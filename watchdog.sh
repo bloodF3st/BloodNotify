@@ -3,8 +3,8 @@
 # Pings VDS — if unreachable, sends ntfy push.
 # Configure VDS_HOST and NTFY_URL below or via environment.
 
-VDS_HOST="${VDS_HOST:-144.31.73.188}"
-NTFY_URL="${NTFY_URL:-https://ntfy.sh/BloodVDS}"
+VDS_HOST="${VDS_HOST:-YOUR_VDS_IP}"
+NTFY_URL="${NTFY_URL:-https://ntfy.sh/YOUR_TOPIC}"
 
 if ! ping -c 3 -W 5 "$VDS_HOST" > /dev/null 2>&1; then
     curl -s \

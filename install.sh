@@ -12,8 +12,8 @@ MODE="${1:-both}"
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-read -rp "ntfy topic URL [https://ntfy.sh/BloodVDS]: " NTFY_URL
-NTFY_URL="${NTFY_URL:-https://ntfy.sh/BloodVDS}"
+read -rp "ntfy topic URL [https://ntfy.sh/YOUR_TOPIC]: " NTFY_URL
+NTFY_URL="${NTFY_URL:-https://ntfy.sh/YOUR_TOPIC}"
 
 if [[ "$MODE" != "--local-only" ]]; then
     read -rp "SSH alias/host for VDS [bloodvds]: " VDS_HOST
@@ -21,8 +21,8 @@ if [[ "$MODE" != "--local-only" ]]; then
 fi
 
 if [[ "$MODE" != "--vds-only" ]]; then
-    read -rp "VDS IP for ping watchdog [144.31.73.188]: " VDS_IP
-    VDS_IP="${VDS_IP:-144.31.73.188}"
+    read -rp "VDS IP for ping watchdog [YOUR_VDS_IP]: " VDS_IP
+    VDS_IP="${VDS_IP:-YOUR_VDS_IP}"
 fi
 
 # ── VDS: blood-monitor ────────────────────────────────────────────────────────
@@ -31,7 +31,7 @@ if [[ "$MODE" != "--local-only" ]]; then
     info "Deploying blood-monitor to VDS ($VDS_HOST)..."
 
     # Patch NTFY_URL in script
-    MONITOR_SCRIPT=$(sed "s|https://ntfy.sh/BloodVDS|${NTFY_URL}|g" blood-monitor.sh)
+    MONITOR_SCRIPT=$(sed "s|https://ntfy.sh/YOUR_TOPIC|${NTFY_URL}|g" blood-monitor.sh)
 
     ssh "$VDS_HOST" "mkdir -p /opt/blood-monitor"
     echo "$MONITOR_SCRIPT" | ssh "$VDS_HOST" "cat > /opt/blood-monitor/blood-monitor.sh && chmod +x /opt/blood-monitor/blood-monitor.sh"
@@ -57,12 +57,12 @@ fi
 if [[ "$MODE" != "--vds-only" ]]; then
     info "Installing local watchdog..."
 
-    WATCHDOG_SCRIPT=$(sed "s|144.31.73.188|${VDS_IP}|g; s|https://ntfy.sh/BloodVDS|${NTFY_URL}|g" watchdog.sh)
+    WATCHDOG_SCRIPT=$(sed "s|YOUR_VDS_IP|${VDS_IP}|g; s|https://ntfy.sh/YOUR_TOPIC|${NTFY_URL}|g" watchdog.sh)
 
     sudo bash -c "echo '$WATCHDOG_SCRIPT' > /usr/local/bin/bloodvds-watchdog.sh && chmod +x /usr/local/bin/bloodvds-watchdog.sh"
 
     # Patch IP and NTFY_URL in systemd unit
-    sed "s|144.31.73.188|${VDS_IP}|g" systemd/bloodvds-watchdog.service | sudo tee /etc/systemd/system/bloodvds-watchdog.service > /dev/null
+    sed "s|YOUR_VDS_IP|${VDS_IP}|g" systemd/bloodvds-watchdog.service | sudo tee /etc/systemd/system/bloodvds-watchdog.service > /dev/null
     sudo cp systemd/bloodvds-watchdog.timer /etc/systemd/system/bloodvds-watchdog.timer
 
     sudo systemctl daemon-reload
